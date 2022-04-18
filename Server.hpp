@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <chrono>
 #include <sstream>
+#include <fstream>
 #include <iomanip>
 #include <numeric>
 #include <vector>
@@ -37,4 +38,6 @@ public:
     void                    poll_in(pollfdType::iterator &it);
     int                     poll_user(pollfdType::iterator &it);
     int                     poll_out(pollfdType::iterator &it);
+    void                    write_log(std::string &msg);
+    std::stringstream       datetime();
 };

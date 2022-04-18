@@ -1,5 +1,15 @@
 #include "Server.hpp"
 
+std::stringstream Server::datetime(){
+    auto now = std::chrono::system_clock::now();
+    auto UTC = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+    std::stringstream datetime;
+    datetime << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
+    return datetime;
+}
+
 Server::Server(char *port, char *bd_ip, char *bd_prot) {
 	for (int i = 0; port[i]; ++i) {
 		if (!isdigit(port[i]))
@@ -22,13 +32,7 @@ Server::Server(char *port, char *bd_ip, char *bd_prot) {
     }
 
     _file_name = "proxy_log[";
-    auto now = std::chrono::system_clock::now();
-    auto UTC = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
-
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
-    std::stringstream datetime;
-    datetime << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
-    _file_name += datetime.str();
+    _file_name += datetime().str();
     std::replace(_file_name.begin(), _file_name.end(), ':', '-');
     std::replace(_file_name.begin(), _file_name.end(), ':', '-');
     _file_name += "].log";
@@ -106,6 +110,15 @@ void Server::poll_in(pollfdType::iterator &it)
 	}
 }
 
+void Server::write_log(std::string &msg) {
+    std::ofstream out(_file_name.c_str(), std::ios::app);
+    if (!out) {
+        std::cerr << "Ошибка открытия файла " << _file_name << std::endl;
+    }
+    out << "[" << datetime().str() << "]: " << msg << std::endl;
+    out.close();
+}
+
 int Server::poll_user(pollfdType::iterator &it)
 {
     it->revents = 0;
@@ -121,8 +134,10 @@ int Server::poll_user(pollfdType::iterator &it)
         if (nbytes != MAX_BUFFER_RECV) {
             if (it->fd == itu->get_dbSc())
                 send(itu->get_userSc(), itu->getMsg().c_str(),itu->getMsg().length() ,0);
-            else
+            else {
+                write_log(itu->getMsg());
                 send(itu->get_dbSc(), itu->getMsg().c_str(),itu->getMsg().length() ,0);
+            }
             itu->getMsg().clear();
         }
     }
