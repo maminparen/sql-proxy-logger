@@ -4,7 +4,7 @@ using namespace std;
 
 void signal_handler(int signal) {
     (void)signal;
-    cout << "Программа остановлена." << endl;
+    cout << "Сервер остановлена." << endl;
     exit(0);
 }
 
@@ -20,10 +20,11 @@ int main (int argc, char **argv) {
     signal(SIGINT, signal_handler);
     signal(SIGQUIT, signal_handler);
     signal(SIGTSTP, signal_handler);
-    
+
     try {
         Server server(argv[1], argv[2], argv[3]);
-        while (1);
+        server.start();
+        server.loop();
     }
     catch (std::exception& e) {
         cerr << "Ошибка: " << e.what() << endl;
