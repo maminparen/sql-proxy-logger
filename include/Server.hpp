@@ -25,14 +25,14 @@
 class User;
 
 class Server {
+private:
     struct sockaddr_in                          _address;
     struct sockaddr_in                          _address_bd;
     std::string                                 _file_name;
     int                                         _sc;
     typedef std::vector<struct pollfd>	        pollfdType;
-	pollfdType							        _fds;
+    pollfdType							        _fds;
     std::map <int, User *>                      _users;
-private:
     Server();
 public:
     Server(char *port, char *bd_ip, char *bd_prot);

@@ -66,7 +66,7 @@ void    Server::start() {
     tmp.events = POLLIN;
     tmp.revents = 0;
     _fds.push_back(tmp);
-    printf("Прокси сервер запущен\n");
+    std::cout << "Прокси сервер запущен" << std::endl;
 }
 
 void Server::poll_in(pollfdType::iterator &it)
